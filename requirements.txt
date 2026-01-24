@@ -1,0 +1,7 @@
+# Runtime dependencies
+
+cryptography>=41,<45      # provides secure AES, modes of operation (ECB/CBC/CTR), padding, and backend implementations
+
+pytest>=8,<9              # needed to run unit tests
+
+PySide6                   # needed for GUI
