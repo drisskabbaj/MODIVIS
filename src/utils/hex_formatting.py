@@ -105,19 +105,6 @@ def format_hex_blocks(hex_str: Optional[str], block_bytes: int = 16, *, label: s
     return out
 
 
-def format_hex_bytes(data: bytes, block_bytes: int = 16, *, label: str = "", purpose: str = "") -> str:
-    """
-    Convenience: bytes are formatted hex blocks.
-    Uses hex_converter.hex_from_bytes as the single source for bytes hex conversion.
-    """
-    h = hex_from_bytes(data, label=label, purpose=purpose)  # logs debug on empty also
-    if not h:
-        return ""
-    
-    # Conversion happens in hex_converter and logged there.
-    return format_hex_blocks(h, block_bytes=block_bytes, label=label, purpose=purpose, assume_normalized=True)
-
-
 def hex_tokens_from_raw_hex(raw_hex: str, *, label: str = "", purpose: str = "") -> list[str]:
     """
     Takes exemple "aabbcc" and return ["aa", "bb", "cc"] (each item is 1 byte written as 2 hex chars :)
@@ -141,27 +128,3 @@ def hex_tokens_from_raw_hex(raw_hex: str, *, label: str = "", purpose: str = "")
         raise ValueError("HEX Formatting failed: HEX length must be even (2 hex chars = 1 byte).")
 
     return [raw_hex[i : i + 2] for i in range(0, len(raw_hex), 2)]
-
-
-def hex_tokens(data: bytes, *, label: str = "", purpose: str = "") -> list[str]:
-    """
-    Takes bytes like b"\x0a\xff" and return ["0a", "ff"]
-    """
-    # Defensive check (matches style of other utils)
-    if not isinstance(data, (bytes, bytearray)):
-        log_error(
-            f"HEX Formatting failed: invalid type | module=hex_formatting | func=hex_tokens | type(data)={type(data).__name__} | label={label} | purpose={purpose}"
-        )
-        raise TypeError("HEX Formatting failed: input must be bytes.")
-    
-    # making sure it's plain bytes (convert bytearray to bytes)
-    raw = bytes(data)
-    if not raw:
-        return []
-
-    # Fast path: bytes to ex. ["0a","ff",...]. Bytes already guarantee even-length and valid values.
-    out = [f"{x:02x}" for x in raw]
-
-    log_debug(f"HEX tokens generated | module=hex_formatting | func=hex_tokens | bytes={len(raw)} | label={label} | purpose={purpose}")
-
-    return out

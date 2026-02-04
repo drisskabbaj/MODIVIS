@@ -89,38 +89,6 @@ def test_format_hex_blocks_odd_length_raises_and_logs_error(monkeypatch):
     assert len(error_calls) == 1
     assert "odd length" in error_calls[0]
 
-
-# format_hex_bytes should format bytes into hex blocks (and rely ofc on hex_converter for conversion)
-def test_format_hex_bytes_formats_bytes(monkeypatch):
-    monkeypatch.setattr(hex_formatting, "hex_from_bytes", lambda b, **kwargs: "00112233")
-
-    out = hex_formatting.format_hex_bytes(b"\x00\x11\x22\x33", block_bytes=2)
-
-    assert out == "0011 2233"
-
-
-# format_hex_bytes should return "" for empty bytes
-def test_format_hex_bytes_empty_returns_empty_string():
-    assert hex_formatting.format_hex_bytes(b"") == ""
-
-
-# format_hex_bytes should raise on wrong type and log an error (logged by hex_converter.hex_from_bytes)
-@pytest.mark.parametrize("value", ["0011", 123, None])
-def test_format_hex_bytes_wrong_type_raises_and_logs_error(monkeypatch, value):
-    error_calls: list[str] = []
-    debug_calls: list[str] = []
-
-    monkeypatch.setattr(hex_converter, "log_error", lambda msg: error_calls.append(msg))
-    monkeypatch.setattr(hex_converter, "log_debug", lambda msg: debug_calls.append(msg))
-
-    with pytest.raises(TypeError, match="input must be bytes"):
-        hex_formatting.format_hex_bytes(value)
-
-    assert debug_calls == []
-    assert len(error_calls) == 1
-    assert "invalid type" in error_calls[0]
-
-
 # hex_tokens_from_raw_hex should split into byte tokens
 def test_hex_tokens_from_raw_hex_splits_correctly():
     assert hex_formatting.hex_tokens_from_raw_hex("aabbcc") == ["aa", "bb", "cc"]
@@ -139,22 +107,3 @@ def test_hex_tokens_from_raw_hex_rejects_invalid(monkeypatch):
         hex_formatting.hex_tokens_from_raw_hex("zz")
 
     assert len(error_calls) == 2
-
-
-# hex_tokens should convert bytes to tokens (formatting check)
-def test_hex_tokens_from_bytes(monkeypatch):
-    monkeypatch.setattr(hex_formatting, "hex_from_bytes", lambda b, **kwargs: "0aff")
-    assert hex_formatting.hex_tokens(b"\x0a\xff") == ["0a", "ff"]
-
-
-# hex_tokens should raise on wrong type and log an error
-@pytest.mark.parametrize("value", ["0aff", 123, None])
-def test_hex_tokens_wrong_type_raises_and_logs_error(monkeypatch, value):
-    error_calls: list[str] = []
-    monkeypatch.setattr(hex_formatting, "log_error", lambda msg: error_calls.append(msg))
-
-    with pytest.raises(TypeError, match="input must be bytes"):
-        hex_formatting.hex_tokens(value)
-
-    assert len(error_calls) == 1
-    assert "invalid type" in error_calls[0]
