@@ -95,7 +95,9 @@ python main.py
 - Debug logging can be enabled in `src/utils/logger.py`.
 
 ## Linux/WSL System Dependencies
-If you see Qt platform plugin errors, install the XCB packages:
+Even on WSL Ubuntu, system package availability and Qt runtime behavior can vary across versions and setups, so the commands below are provided without guarantee and you should follow any Qt platform plugin error messages to install the missing OS libraries on your system.
+
+On my WSL Ubuntu setup, I installed the following XCB packages to satisfy the Qt platform plugin requirements:
 
 ```bash
 sudo apt update
